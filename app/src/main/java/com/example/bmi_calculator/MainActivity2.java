@@ -22,9 +22,7 @@ public static final String SETTING = "SYSTEM";
         setContentView(R.layout.activity_main2);
         metric = findViewById(R.id.metric_btn);
         imperial = findViewById(R.id.imperial_btn);
-
         SharedPreferences pref =getSharedPreferences(SETTING, MODE_PRIVATE);
-
         metric.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

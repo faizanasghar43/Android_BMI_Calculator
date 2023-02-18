@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextWeight, editTextHeight;
     private Button buttonCalculate;
     private ImageButton go_to_settings;
+    SharedPreferences pref;
     private TextView textViewBMI,textViewStatus, weight_text, height_text;
     public static final String SETTING = "SYSTEM";
     @Override
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         textViewStatus =  findViewById(R.id.status_txt);
         height_text = findViewById(R.id.inches_txt);
         weight_text = findViewById(R.id.weight_txt);
-        SharedPreferences pref =getSharedPreferences(SETTING, MODE_PRIVATE);
+        pref =getSharedPreferences(SETTING, MODE_PRIVATE);
 
         String myString = pref.getString("SYSTEM", "");
         if(myString.equals("METRIC")){
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         else {
             height_text.setText("Inches"+"");
             weight_text.setText("Pounds"+"");
+
             buttonCalculate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -121,8 +123,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-
-
         go_to_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,4 +132,59 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            // Get the saved message from Shared Preferences with the key "message"
+            String status = pref.getString("status", "");
+            double defaultValue = 0.0; // or whatever default value you want
+            double weight = (double) pref.getFloat("weight", (float) defaultValue);
+            double height = (double) pref.getFloat("height", (float) defaultValue);
+            double BMI = (double) pref.getFloat("BMI", (float) defaultValue);
+            // Set the text of the message box to the saved message
+            DecimalFormat df = new DecimalFormat("#.##");
+            textViewStatus.setText(status);
+            String formattedValue = df.format(height);
+            editTextHeight.setText(formattedValue);
+            formattedValue = df.format(weight);
+
+            editTextWeight.setText(formattedValue);
+
+            formattedValue = df.format(BMI);
+            textViewBMI.setText(formattedValue);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            // Get the current message text from the message box
+            String text_w = editTextWeight.getText().toString();
+            String text_h = editTextHeight.getText().toString();
+            String text_B = textViewBMI.getText().toString();
+            String text_s = textViewStatus.getText().toString();
+            double value_w = Double.parseDouble(text_w);
+            double value_h = Double.parseDouble(text_h);
+            double value_B = Double.parseDouble(text_B);
+
+            // Save the message in the Shared Preferences with the key "message"
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putFloat("weight", (float)value_w);
+            editor.putFloat("height", (float)value_h);
+            editor.putFloat("BMI", (float)value_B);
+            editor.putString("status", text_s);
+            editor.apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
+//If the app goes in background, the app should save weight, height, bmi and status if it is already
+//populated and repopulate the data when user comes back
+
